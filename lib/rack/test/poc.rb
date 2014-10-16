@@ -1,5 +1,15 @@
 module RackTestPoc
 
+  def self.root
+    if defined?(Rails) && Rails.respond_to?(:root) && !!Rails.root
+      Rails.root.to_s
+    elsif !!ENV['BUNDLE_GEMFILE']
+      ENV['BUNDLE_GEMFILE'].split(File::Separator)[0..-2].join(File::Separator)
+    else
+      Dir.pwd
+    end
+  end
+
   def self.dump_obj
     @dump_obj ||= Hash.new
   end
@@ -13,16 +23,7 @@ module RackTestPoc
           require 'yaml'
           require 'fileutils'
 
-          root_dir = if defined?(Rails) && Rails.respond_to?(:root) && !!Rails.root
-                       Rails.root.to_s
-                     elsif !!ENV['BUNDLE_GEMFILE']
-                       ENV['BUNDLE_GEMFILE'].split(File::Separator)[0..-2].join(File::Separator)
-                     else
-                       Dir.pwd
-                     end
-
-          dump_dir = File.join root_dir,'test','poc'
-
+          dump_dir = File.join RackTestPoc.root,'test','poc'
           FileUtils.mkdir_p(dump_dir) unless File.exist?(dump_dir)
 
           unless RackTestPoc.dump_obj.empty?
@@ -71,9 +72,8 @@ module RackTestPoc
       RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['response'] ||= {}
       RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['request']  ||= {}
 
-      RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['request']['query']= env['QUERY_STRING']
-
-      RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['response']['body']= body
+      RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['request']['query']  = env['QUERY_STRING']
+      RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['response']['body']  = body
       RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['response']['status']= last_response.status
       RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['response']['format']= format
 
