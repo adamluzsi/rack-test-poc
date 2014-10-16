@@ -58,3 +58,21 @@ describe 'AppTest' do
 end  
   
 ```
+
+this will generate a yaml file with the current unix timestamp in the following format:
+
+```yaml
+
+---
+"/": #> endpoint
+  GET: #> endpoint method
+    response: 
+      body: #> parsed response.body
+        msg: Hello Rack!
+      status: 200
+      format: json #> format of the response
+    request:
+      query: '' #> query string that been used
+
+
+```
