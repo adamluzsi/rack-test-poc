@@ -63,7 +63,8 @@ module RackTestPoc
         end
 
       rescue
-        body = last_response.body
+        format  = 'text/html'
+        body    = last_response.body
 
       end
 
