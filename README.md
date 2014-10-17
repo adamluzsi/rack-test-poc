@@ -22,6 +22,12 @@ I my self use for documentation and cooperation purpose with other developers
 
   gem 'rack-test-poc'
 
+### Use
+
+All you need to do is to require 'rack/test/poc' in your test_helper 
+when you working with rack-test module,
+and you good to go!
+
 ### example
 
 ```ruby
