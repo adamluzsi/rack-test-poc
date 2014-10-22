@@ -20,7 +20,8 @@ describe 'AppTest' do
 
   specify 'some rack test!' do
 
-    get '/' #> at this point poc data generated for '/'
+    header('Accept-Version','v1')
+    get '/',one_param: 'data' #> at this point poc data generated for '/'
 
     #> bla bla bla some code here
 
