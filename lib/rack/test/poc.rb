@@ -42,8 +42,10 @@ module RackTestPoc
 
       super
 
+      request_method_str = env['REQUEST_METHOD'].to_s.upcase
+
       RackTestPoc.dump_obj[uri] ||= {}
-      RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']] ||= {}
+      RackTestPoc.dump_obj[uri][request_method_str] ||= {}
 
       begin
 
@@ -69,8 +71,8 @@ module RackTestPoc
 
       end
 
-      RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['response'] ||= {}
-      RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['request']  ||= {}
+      RackTestPoc.dump_obj[uri][request_method_str]['response'] ||= {}
+      RackTestPoc.dump_obj[uri][request_method_str]['request']  ||= {}
 
       raw_query = env.find{|k,v|
         %W[ QUERY_STRING rack.request.form_vars ].any?{|tag| k == tag && !v.nil? && v != '' }
@@ -87,19 +89,21 @@ module RackTestPoc
 
                    end
 
-      RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['request']['query'] ||= {}
-      RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['request']['query']['raw'] = raw_query
-      RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['request']['query']['object'] = query_hash
-      RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['request']['headers']= env.reduce({}){
+      RackTestPoc.dump_obj[uri][request_method_str]['request']['query'] ||= {}
+      RackTestPoc.dump_obj[uri][request_method_str]['request']['query']['raw'] = raw_query
+      RackTestPoc.dump_obj[uri][request_method_str]['request']['query']['object'] = query_hash
+      RackTestPoc.dump_obj[uri][request_method_str]['request']['headers']= env.reduce({}){
           |m,o| m.merge!(o[0]=>o[1]) if o[0].to_s.downcase =~ /^http_/ ; m
       }
 
-      RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['response']['body']  = body
-      RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['response']['status']= last_response.status
-      RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['response']['format']= format
+      RackTestPoc.dump_obj[uri][request_method_str]['response']['body']     = body
+      RackTestPoc.dump_obj[uri][request_method_str]['response']['raw_body'] = last_response.body
+
+      RackTestPoc.dump_obj[uri][request_method_str]['response']['status']= last_response.status
+      RackTestPoc.dump_obj[uri][request_method_str]['response']['format']= format
 
       if env['CONTENT_TYPE']
-        RackTestPoc.dump_obj[uri][env['REQUEST_METHOD']]['response']['content_type']= env['CONTENT_TYPE']
+        RackTestPoc.dump_obj[uri][request_method_str]['response']['content_type']= env['CONTENT_TYPE']
 
       end
 
