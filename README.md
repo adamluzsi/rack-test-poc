@@ -28,6 +28,10 @@ All you need to do is to require 'rack/test/poc' in your test_helper
 when you working with rack-test module,
 and you good to go!
 
+If you can, you should always describe with :is_for object methods, the response content,
+so it can be easy to analyze out from the poc file, or even can be used in documentation generating!
+With that you can make Google Api docs level documentations!
+
 ### example
 
 ```ruby
@@ -57,6 +61,11 @@ describe 'AppTest' do
 
     #> bla bla bla some code here
     last_response.body #> '{"msg":"Hello Rack!"}'
+    
+    #> you should describe a response so it can be easy to understand from the poc!
+    resp = JSON.parse(last_response.body)
+    resp['msg'].desc 'Hy'
+    resp['data']['key'].desc 'bye'
 
   end
 

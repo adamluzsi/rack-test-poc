@@ -3,8 +3,8 @@ require 'rack'
 
 class APP
   def self.call(env)
-    # [200, {"Content-Type" => "application/json"}, '{"msg":"Hello Rack!","data":{"key":"value"}}']
-    [200, {"Content-Type" => "text/html"}, 'true']
+    [200, {"Content-Type" => "application/json"}, '{"msg":"Hello Rack!","data":{"key":"value"}}']
+    # [200, {"Content-Type" => "text/html"}, 'true']
   end
 end
 
@@ -28,11 +28,11 @@ describe 'AppTest' do
 
     last_response.body #> '{"msg":"Hello Rack!"}'
 
-    # resp = JSON.parse(last_response.body)
-    # resp['msg'].desc 'Hy'
-    # resp['data']['key'].desc 'bye'
+    resp = JSON.parse(last_response.body)
+    resp['msg'].is_for 'Hy'
+    resp['data']['key'].is_for 'bye'
 
-    last_response.body.desc 'boolean response'
+    # last_response.body.desc 'boolean response'
 
 
   end

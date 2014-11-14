@@ -4,7 +4,7 @@ module RackTestPoc
 
   module ObjectExt
 
-    def description(description_text)
+    def is_for(description_text)
       return unless RackTestPoc.last_poc
 
       old_body = RackTestPoc.last_poc['response']['body']['object']
@@ -17,13 +17,13 @@ module RackTestPoc
         end
 
       }.call
-      desc_body = RackTestPoc.last_poc['response']['body']['description']
 
+      desc_body = RackTestPoc.last_poc['response']['body']['description']
       RackTestPoc.description_helper(desc_body,self,description_text)
 
       nil
 
-    end;alias desc description
+    end
 
   end
 
