@@ -7,7 +7,7 @@ describe 'POCTest' do
 
   specify 'it should be made able to made a poc at exiting from the process' do
 
-    $stdout.puts `bundle exec ruby #{File.join __dir__,'dummy.rb'}`
+    $stdout.puts `bundle exec ruby #{File.join __dir__,'test_description.rb'}`
 
     begin
 
