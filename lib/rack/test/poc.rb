@@ -18,8 +18,7 @@ module RackTestPoc
 
       }.call
 
-      desc_body = RackTestPoc.last_poc['response']['body']['description']
-      RackTestPoc.description_helper(desc_body,self,description_text)
+      RackTestPoc.description_helper(self,description_text)
 
       nil
 
@@ -53,8 +52,8 @@ module RackTestPoc
       end
     end
 
-    def description_helper(container,object,description_text)
-      case container
+    def description_helper(object,description_text)
+      case container = RackTestPoc.last_poc['response']['body']['description']
 
         when Array,Hash
           desc_comp_search(container,object,description_text)
@@ -114,6 +113,12 @@ module RackTestPoc
     end
 
     def process_request(uri, env, *args)
+
+      if RackTestPoc.last_poc && RackTestPoc.last_poc['response']['body']['description']
+
+        RackTestPoc.last_poc['response']['body']['description']
+
+      end
 
       __init_dump_poc__
 

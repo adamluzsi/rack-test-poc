@@ -3,7 +3,7 @@ require 'rack'
 
 class APP
   def self.call(env)
-    [200, {"Content-Type" => "application/json"}, '{"msg":"Hello Rack!","data":{"key":"value"}}']
+    [200, {"Content-Type" => "application/json"}, '{"msg":"Hello Rack!","data":{"key":"value","key2":"value2"}}']
     # [200, {"Content-Type" => "text/html"}, 'true']
   end
 end
