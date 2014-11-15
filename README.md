@@ -28,7 +28,7 @@ All you need to do is to require 'rack/test/poc' in your test_helper
 when you working with rack-test module,
 and you good to go!
 
-If you can, you should always describe with :is_for object methods, the response content,
+If you can, you should always describe with :is_for, :it_is_for object methods, the response content,
 so it can be easy to analyze out from the poc file, or even can be used in documentation generating!
 With that you can make Google Api docs level documentations!
 

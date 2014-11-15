@@ -22,7 +22,7 @@ module RackTestPoc
 
       nil
 
-    end
+    end;alias it_is_for is_for
 
   end
 
