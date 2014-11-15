@@ -7,8 +7,10 @@ module RackTestPoc
     def is_for(description_text)
       return unless RackTestPoc.last_poc
 
-      old_body = RackTestPoc.last_poc['response']['body']['object']
+      # ['description']
       RackTestPoc.last_poc['response']['body']['description'] ||= ->{
+
+        old_body = RackTestPoc.last_poc['response']['body']['object']
 
         begin
           JSON.parse(old_body.to_json) #> hard clone
@@ -92,23 +94,29 @@ module RackTestPoc
 
   module EXT
 
+    def __write_out__
+
+      require 'yaml'
+      require 'fileutils'
+
+      dump_dir = File.join RackTestPoc.root,'test','poc'
+      FileUtils.mkdir_p(dump_dir) unless File.exist?(dump_dir)
+
+      unless RackTestPoc.dump_object.empty?
+        File.write File.join(dump_dir,Time.now.to_i.to_s.concat('.yaml')),
+                   RackTestPoc.dump_object.to_yaml
+
+      end
+
+    end
+
     def __init_dump_poc__
       $rack_test_poc_dump_export ||= -> {
-        Kernel.at_exit do
-
-          require 'yaml'
-          require 'fileutils'
-
-          dump_dir = File.join RackTestPoc.root,'test','poc'
-          FileUtils.mkdir_p(dump_dir) unless File.exist?(dump_dir)
-
-          unless RackTestPoc.dump_object.empty?
-            File.write File.join(dump_dir,Time.now.to_i.to_s.concat('.yaml')),
-                       RackTestPoc.dump_object.to_yaml
-
-          end
-
-        end;true
+        if MiniTest::Unit.respond_to?(:after_tests)
+          MiniTest::Unit.after_tests{ __write_out__ }
+        else
+          Kernel.at_exit{ __write_out__ }
+        end
       }.call
     end
 
@@ -127,7 +135,9 @@ module RackTestPoc
       request_method_str = env['REQUEST_METHOD'].to_s.upcase
 
       RackTestPoc.dump_object[uri] ||= {}
-      RackTestPoc.dump_object[uri][request_method_str] ||= {}
+      RackTestPoc.dump_object[uri][request_method_str] ||= []
+
+      last_response_poc = {}
 
       begin
 
@@ -153,8 +163,8 @@ module RackTestPoc
 
       end
 
-      RackTestPoc.dump_object[uri][request_method_str]['response'] ||= {}
-      RackTestPoc.dump_object[uri][request_method_str]['request']  ||= {}
+      last_response_poc['response'] ||= {}
+      last_response_poc['request']  ||= {}
 
       raw_query = env.find{|k,v|
         %W[ QUERY_STRING rack.request.form_vars ].any?{|tag| k == tag && !v.nil? && v != '' }
@@ -171,28 +181,29 @@ module RackTestPoc
 
                    end
 
-      RackTestPoc.dump_object[uri][request_method_str]['request']['query'] ||= {}
-      RackTestPoc.dump_object[uri][request_method_str]['request']['query']['raw'] = raw_query
-      RackTestPoc.dump_object[uri][request_method_str]['request']['query']['object'] = query_hash
-      RackTestPoc.dump_object[uri][request_method_str]['request']['headers'] = @headers
+      last_response_poc['request']['query'] ||= {}
+      last_response_poc['request']['query']['raw'] = raw_query
+      last_response_poc['request']['query']['object'] = query_hash
+      last_response_poc['request']['headers'] ||= @headers
 
-      RackTestPoc.dump_object[uri][request_method_str]['response']['body']= {}
+      last_response_poc['response']['body'] = {}
 
-      RackTestPoc.dump_object[uri][request_method_str]['response']['body']['object'] = body
-      RackTestPoc.dump_object[uri][request_method_str]['response']['body']['raw'] = last_response.body
+      last_response_poc['response']['body']['object'] = body
+      last_response_poc['response']['body']['raw'] = last_response.body
 
-      # RackTestPoc.dump_object[uri][request_method_str]['response']['headers']= env.reduce({}){
+      # last_response_poc['response']['headers']= env.reduce({}){
       #     |m,o| m.merge!(o[0]=>o[1]) if o[0].to_s.downcase =~ /^http_/ ; m
       # }
 
-      RackTestPoc.dump_object[uri][request_method_str]['response']['status']= last_response.status
-      RackTestPoc.dump_object[uri][request_method_str]['response']['format']= format
+      last_response_poc['response']['status']= last_response.status
+      last_response_poc['response']['format']= format
 
       # if env['CONTENT_TYPE']
-      #   RackTestPoc.dump_object[uri][request_method_str]['response']['content_type']= env['CONTENT_TYPE']
+      #   last_response_poc['response']['content_type']= env['CONTENT_TYPE']
       # end
 
-      RackTestPoc.last_poc = RackTestPoc.dump_object[uri][request_method_str]
+      RackTestPoc.dump_object[uri][request_method_str] << last_response_poc
+      RackTestPoc.last_poc = last_response_poc
 
       return last_response
 
